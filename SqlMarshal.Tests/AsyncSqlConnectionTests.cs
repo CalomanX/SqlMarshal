@@ -194,7 +194,7 @@ namespace Foo
             var sqlQuery = @""sp_TestSP"";
             command.CommandText = sqlQuery;
             using var reader = await command.ExecuteReaderAsync().ConfigureAwait(false);
-            var result = new List<Item>();
+            var result = new List<Foo.Item>();
             while (await reader.ReadAsync().ConfigureAwait(false))
             {
                 var item = new Item();

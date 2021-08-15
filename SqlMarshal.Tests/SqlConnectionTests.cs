@@ -265,14 +265,14 @@ namespace Foo
             while (reader.Read())
             {
                 var item = new Item();
-                var value_0 = reader.GetValue(0);
-                item.StringValue = value_0 == DBNull.Value ? (string?)null : (string)value_0;
-                var value_1 = reader.GetValue(1);
-                item.Int32Value = (int)value_1;
-                var value_2 = reader.GetValue(2);
-                item.NullableInt32Value = value_2 == DBNull.Value ? (int?)null : (int)value_2;
+                var StringValue = GetString(reader.ResolveOrdinal(""StringValue""));
+                result.StringValue = StringValue == DBNull.Value ? (string?)null : (string)StringValue;
+                var Int32Value = GetInt32(reader.ResolveOrdinal(""Int32Value""));
+                result.Int32Value = (int)Int32Value;
+                var NullableInt32Value = GetInt32(reader.ResolveOrdinal(""NullableInt32Value""));
+                result.NullableInt32Value = NullableInt32Value == DBNull.Value ? (int?)null : (int)NullableInt32Value;
                 result.Add(item);
-            }
+        }
 
             reader.Close();
             return result;

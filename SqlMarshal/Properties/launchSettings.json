@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "SqlMarshal": {
+      "commandName": "Project"
+    }
+  }
+}

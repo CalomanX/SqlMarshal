@@ -80,7 +80,7 @@ namespace Foo
         public void MapResultSetToProcedure()
         {
             string source = @"
-namespace Foo
+namespace Crap
 {
     public class Item
     {
@@ -88,6 +88,11 @@ namespace Foo
         public int Int32Value { get; set; }
         public int? NullableInt32Value { get; set; }
     }
+}
+
+namespace Foo {
+
+    using Crap;
 
     class C
     {

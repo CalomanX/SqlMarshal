@@ -46,10 +46,23 @@ internal sealed class RawSqlAttribute: System.Attribute
 }
 ";
 
+        private const string ReaderResolver = @"
+
+internal static class ReaderResolver {
+
+    internal static int ResolveOrdinal(this System.Data.Common.DbDataReader reader, string fieldName) => reader.GetOrdinal(fieldName);
+}
+
+";
+
         /// <inheritdoc/>
         public void Initialize(GeneratorInitializationContext context)
         {
-            context.RegisterForPostInitialization((pi) => pi.AddSource("SqlMarshalAttribute.cs", AttributeSource));
+            context.RegisterForPostInitialization((pi) =>
+            {
+                pi.AddSource("SqlMarshalAttribute.cs", AttributeSource);
+                pi.AddSource("ReaderResolver.cs", ReaderResolver);
+            });
             context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
         }
 
@@ -255,7 +268,7 @@ internal sealed class RawSqlAttribute: System.Attribute
             {
                 if (type.Name == "Nullable")
                 {
-                    return GetParameterSqlDbType(namedTypeSymbol.TypeArguments[0]);
+                    return GetDataReaderMethod(namedTypeSymbol.TypeArguments[0]);
                 }
             }
 
@@ -580,7 +593,8 @@ namespace {namespaceName}
 
                 if (isList)
                 {
-                    source.AppendLine($@"var result = new List<{itemType.Name}>();");
+                    // source.AppendLine($@"var result = new List<{itemType.Name}>();");
+                    source.AppendLine($@"var result = new List<{itemType.ToDisplayString()}>();");
                     if (isTask)
                     {
                         source.AppendLine($"while (await reader.ReadAsync({cancellationToken}).ConfigureAwait(false))");
@@ -592,13 +606,13 @@ namespace {namespaceName}
 
                     source.AppendLine("{");
                     source.PushIndent();
-                    source.AppendLine($@"var item = new {itemType.Name}();");
+                    source.AppendLine($@"var item = new {itemType.ToDisplayString()}();");
                     int i = 0;
                     foreach (var propertyName in itemType.GetMembers().OfType<IPropertySymbol>())
                     {
                         var dataReaderMethodName = GetDataReaderMethod(propertyName.Type);
-                        source.AppendLine($@"var value_{i} = reader.GetValue({i});");
-                        source.AppendLine($@"item.{propertyName.Name} = {MarshalValue($"value_{i}", hasNullableAnnotations, propertyName.Type)};");
+                        source.AppendLine($"var {propertyName.Name} = reader.{dataReaderMethodName}(reader.ResolveOrdinal(\"{propertyName.Name}\"));");
+                        source.AppendLine($@"item.{propertyName.Name} = {MarshalValue($"{propertyName.Name}", hasNullableAnnotations, propertyName.Type)};");
                         i++;
                     }
 
@@ -645,8 +659,8 @@ namespace {namespaceName}
                     foreach (var propertyName in itemType.GetMembers().OfType<IPropertySymbol>())
                     {
                         var dataReaderMethodName = GetDataReaderMethod(propertyName.Type);
-                        source.AppendLine($@"var value_{i} = reader.GetValue({i});");
-                        source.AppendLine($@"result.{propertyName.Name} = {MarshalValue($"value_{i}", hasNullableAnnotations, propertyName.Type)};");
+                        source.AppendLine($"var {propertyName.Name} = reader.{dataReaderMethodName}(reader.ResolveOrdinal(\"{propertyName.Name}\"));");
+                        source.AppendLine($@"item.{propertyName.Name} = {MarshalValue($"{propertyName.Name}", hasNullableAnnotations, propertyName.Type)};");
                         i++;
                     }
 

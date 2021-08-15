@@ -1,7 +1,11 @@
+
+
+# PLEASE TAKE NOTICE!!!
+> This is a fork of Andrii Kurdiumov's [SqlMarshall](https://github.com/kant2002/SqlMarshal) changed to fit my needs as a learning starting point for Source Generators and its not by any meaning appropriate for production environment.
+> If you like the project please use the original work.
+
 SqlMarshal
 ===========================
-
-[![NuGet](https://img.shields.io/nuget/v/SqlMarshal.svg?style=flat)](https://www.nuget.org/packages/SqlMarshal/)
 
 NativeAOT-friendly mini-ORM which care about nullability checks.
 
